@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jungschi-back
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jungschi-back
+  template:
+    metadata:
+      labels:
+        app: jungschi-back
+    spec:
+      containers:
+        - name: jungschi-back
+          image: jungschi-back:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - secretRef:
+                name: database-config
+            - secretRef:
+                name: keycloak
+          env:
+            - name: QUARKUS_CONFIG_LOCATIONS
+              value: /config/application-prod.yaml
+          volumeMounts:
+            - mountPath: /config/application-prod.yaml
+              readOnly: true
+              name: config-volume
+              subPath: application-prod.yaml
+          resources:
+            requests:
+              cpu: 100m
+              memory: 50Mi
+            limits:
+              cpu: 800m
+              memory: 2000Mi
+      volumes:
+        - name: config-volume
+          configMap:
+            name: application-config
+            items:
+              - key: application-prod.yaml
+                path: application-prod.yaml

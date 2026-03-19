@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jungschi
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    service.kubernetes.io/service-proxy-name: "jungschi-ui"
+spec:
+  selector:
+    app: jungschi-ui
+  ports:
+    - port: 8080
+

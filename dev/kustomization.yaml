@@ -1,0 +1,34 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+images:
+  - name: jungschi-back
+    newName: ghcr.io/denic0la/jungschi-back
+    newTag: v1.0.3
+  - name: jungschi-ui
+    newName: ghcr.io/denic0la/jungschi-ui
+    newTag: v1.0.0
+  - name: postgres
+    newName: registry.digitalocean.com/denic0la-ocean/postgres
+    newTag: alpine-15
+
+
+resources:
+  - ../base
+  - db
+  - ingress.yaml
+  - sealedsecret_database-config.yaml
+  - sealedsecret_keycloak.yaml
+
+configMapGenerator:
+  - files:
+      - application-prod.yaml
+    name: application-config
+  - files:
+      - nginx.conf
+    name: nginx-config
+
+
+#patches:
+#  - path: patch-stop-all.yaml
+#    target:
+#      kind: Deployment

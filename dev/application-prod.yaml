@@ -1,0 +1,30 @@
+
+quarkus:
+  log:
+    file:
+      enabled: false
+    socket:
+      enabled: false
+    syslog:
+      enabled: false
+
+  datasource:
+    db-kind: postgresql
+    password: ${DATABASE_PASSWORD}
+    database: ${DATABASE_NAME}
+    username: ${DATABASE_USERNAME}
+    port: 5432
+    host: dev-in-cluster-db
+    jdbc:
+      driver: org.postgresql.Driver
+
+  flyway:
+    migrate-at-start: true
+  http:
+    port: 8080
+
+  oidc:
+    auth-server-url: https://keycloak.denic0la.ch/realms/jungschi
+    client-id: backend-service
+    credentials:
+      secret: ${OIDC_CLIENT_SECRET}

@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: link
+  name: router
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+    cert-manager.io/common-name: jungschi.denic0la.ch
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - jungschi.denic0la.ch
+      secretName: jungschi-dev-tls
+  rules:
+    - host: jungschi.denic0la.ch
+      http:
+        paths:
+          - path: "/api"
+            pathType: Prefix
+            backend:
+              service:
+                name: jungschi-back
+                port:
+                  number: 8080
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: jungschi-ui
+                port:
+                  number: 8080
