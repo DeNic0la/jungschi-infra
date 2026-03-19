@@ -9,7 +9,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: link-pg
+      app: jungschi-dev-pg
   serviceName: dev-in-cluster-db
   replicas: 1
   template:
