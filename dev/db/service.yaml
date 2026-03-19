@@ -7,7 +7,7 @@ metadata:
     kubernetes.io/service-name: "dev-in-cluster-db"
 spec:
   selector:
-    app: dev-db-pg
+    app: jungschi-dev-pg
   ports:
     - port: 5432
 

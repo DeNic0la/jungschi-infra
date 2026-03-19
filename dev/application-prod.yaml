@@ -16,6 +16,7 @@ quarkus:
     port: 5432
     host: dev-in-cluster-db
     jdbc:
+      url: jdbc:postgresql://dev-in-cluster-db.jungschi-dev.svc.cluster.local:5432/${DATABASE_NAME}
       driver: org.postgresql.Driver
 
   flyway:
