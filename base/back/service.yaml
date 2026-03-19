@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: link-back
+  name: jungschi-back
   annotations:
     argocd.argoproj.io/sync-wave: "1"
   labels:
-    service.kubernetes.io/service-proxy-name: "link-back"
+    service.kubernetes.io/service-proxy-name: "jungschi-back"
 spec:
   selector:
-    app: link-back
+    app: jungschi-back
   ports:
     - port: 8080
 
