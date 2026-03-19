@@ -6,7 +6,7 @@ images:
     newTag: v1.0.5
   - name: jungschi-ui
     newName: ghcr.io/denic0la/jungschi-ui
-    newTag: v1.0.0
+    newTag: v1.0.1
   - name: postgres
     newName: registry.digitalocean.com/denic0la-ocean/postgres
     newTag: alpine-15
