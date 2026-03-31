@@ -20,7 +20,7 @@ quarkus:
     port: 25060
     host: private-denic0la-pg-do-user-15913621-0.j.db.ondigitalocean.com
     jdbc:
-      url: jdbc:postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@private-denic0la-pg-do-user-15913621-0.j.db.ondigitalocean.com:25060/${DATABASE_NAME}?sslmode=require
+      url: jdbc:postgresql://private-denic0la-pg-do-user-15913621-0.j.db.ondigitalocean.com:25060/${DATABASE_NAME}?sslmode=require
       driver: org.postgresql.Driver
 
   flyway:
