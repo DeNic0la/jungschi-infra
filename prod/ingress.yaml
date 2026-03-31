@@ -2,19 +2,19 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
-    app: jungschi-dev
+    app: jungschi
   name: router
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-issuer
-    cert-manager.io/common-name: jungschi.denic0la.ch
+    cert-manager.io/common-name: app.jungscharluzern.ch
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - jungschi.denic0la.ch
-      secretName: jungschi-dev-tls
+        - app.jungscharluzern.ch
+      secretName: jungschi-prod-tls
   rules:
-    - host: jungschi.denic0la.ch
+    - host: app.jungscharluzern.ch
       http:
         paths:
           - path: "/api"

@@ -1,0 +1,35 @@
+
+quarkus:
+  log:
+    file:
+      enabled: false
+    socket:
+      enabled: false
+    syslog:
+      enabled: false
+    category:
+      "io.quarkus.oidc":
+        level: warn
+      "io.quarkus.security":
+        level: warn
+  datasource:
+    db-kind: postgresql
+    password: ${DATABASE_PASSWORD}
+    database: ${DATABASE_NAME}
+    username: ${DATABASE_USERNAME}
+    port: 25060
+    host: private-denic0la-pg-do-user-15913621-0.j.db.ondigitalocean.com
+    jdbc:
+      url: jdbc:postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@private-denic0la-pg-do-user-15913621-0.j.db.ondigitalocean.com:25060/${DATABASE_NAME}?sslmode=require
+      driver: org.postgresql.Driver
+
+  flyway:
+    migrate-at-start: true
+  http:
+    port: 8080
+
+  oidc:
+    auth-server-url: https://keycloak.denic0la.ch/realms/jungschi
+    client-id: backend-service
+    credentials:
+      secret: ${OIDC_CLIENT_SECRET}
