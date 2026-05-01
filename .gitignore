@@ -1,5 +1,5 @@
 
-*/secret_*.yaml
+**/secret_*.yaml
 secret_*.yaml
 jungschi-infra.iml
 *.iml
@@ -7,3 +7,4 @@ jungschi-infra.iml
 /.idea
 /.idea/**
 *.xml
+.idea/
