@@ -1,5 +1,6 @@
 kind: Kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
+namespace: jungschi
 images:
   - name: jungschi-back
     newName: ghcr.io/denic0la/jungschi-back
@@ -12,10 +13,17 @@ images:
 resources:
   - ../base
   - ingress.yaml
+  - keycloak-realm-sync.yaml
   - sealedsecret_database-config.yaml
   - sealedsecret_keycloak.yaml
 
 configMapGenerator:
+  - files:
+      - prod-realm.json
+    name: keycloak-realm-config
+    options:
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
   - files:
       - application-prod.yaml
     name: application-config

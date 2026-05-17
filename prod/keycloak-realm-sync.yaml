@@ -1,0 +1,111 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-realm-sync
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: keycloak-realm-sync
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: keycloak-realm-sync
+          image: quay.io/keycloak/keycloak:26.6.1
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              KEYCLOAK_URL="${KEYCLOAK_URL%/}"
+              KCADM="/opt/keycloak/bin/kcadm.sh"
+
+              echo "Waiting for Keycloak admin API at ${KEYCLOAK_URL}"
+              for attempt in $(seq 1 60); do
+                if "${KCADM}" config credentials \
+                  --server "${KEYCLOAK_URL}" \
+                  --realm master \
+                  --user "${KEYCLOAK_ADMIN_USERNAME}" \
+                  --password "${KEYCLOAK_ADMIN_PASSWORD}" >/dev/null 2>&1; then
+                  break
+                fi
+
+                if [ "${attempt}" = "60" ]; then
+                  echo "Unable to authenticate to Keycloak admin API"
+                  exit 1
+                fi
+
+                sleep 5
+              done
+
+              if "${KCADM}" get "realms/${KEYCLOAK_REALM}" >/dev/null 2>&1; then
+                echo "Updating existing realm ${KEYCLOAK_REALM}"
+                "${KCADM}" update "realms/${KEYCLOAK_REALM}" -f /realm/prod-realm.json
+                "${KCADM}" create partialImport \
+                  -r "${KEYCLOAK_REALM}" \
+                  -s ifResourceExists=OVERWRITE \
+                  -f /realm/prod-realm.json
+              else
+                echo "Creating realm ${KEYCLOAK_REALM}"
+                "${KCADM}" create realms -f /realm/prod-realm.json
+              fi
+
+              BACKEND_CLIENT_UUID="$("${KCADM}" get clients \
+                -r "${KEYCLOAK_REALM}" \
+                -q clientId=backend-service \
+                --fields id \
+                --format csv | awk -F, 'NR == 2 { gsub(/"/, "", $1); print $1 }')"
+
+              if [ -z "${BACKEND_CLIENT_UUID}" ]; then
+                echo "Could not find backend-service client in realm ${KEYCLOAK_REALM}"
+                exit 1
+              fi
+
+              "${KCADM}" update "clients/${BACKEND_CLIENT_UUID}" \
+                -r "${KEYCLOAK_REALM}" \
+                -s "secret=${OIDC_CLIENT_SECRET}"
+
+              echo "Keycloak realm ${KEYCLOAK_REALM} is synchronized"
+          env:
+            - name: HOME
+              value: /tmp
+            - name: KEYCLOAK_URL
+              value: https://keycloak.denic0la.ch
+            - name: KEYCLOAK_REALM
+              value: jungschi
+            - name: KEYCLOAK_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_ADMIN_USERNAME
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_ADMIN_PASSWORD
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: OIDC_CLIENT_SECRET
+          volumeMounts:
+            - name: realm-config
+              mountPath: /realm
+              readOnly: true
+          resources:
+            requests:
+              cpu: 25m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+      volumes:
+        - name: realm-config
+          configMap:
+            name: keycloak-realm-config
